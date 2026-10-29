@@ -1,7 +1,7 @@
 # Olkaria 3 TG Alignment (Android)
 
 Offline Android app for rim-and-face DTI turbine-generator coupling alignment for the Olkaria III
-units (generator = reference). Default dimensions are from OEC 42: D 476 mm, A 1200 mm,
+units (generator = reference). Default dimensions are from OEC 42: D 476 mm, A 1500 mm,
 B 2700 mm; edit them for the unit being aligned.
 
 The calculator itself is `app/src/main/assets/index.html`. Edit that file to change the app.

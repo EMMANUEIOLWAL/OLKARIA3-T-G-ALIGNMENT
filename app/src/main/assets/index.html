@@ -118,7 +118,7 @@ ul.rules b{color:var(--ink)}
           </label>
           <label for="sag"><b>Bar sag at 6 (mm)</b>Usually negative<input id="sag" type="number" step="0.01" inputmode="decimal"></label>
         </div>
-        <p class="note">A and B are measured from the DTI tip plane at the coupling. Defaults (from OEC 42): D 476, A 1200, B 2700. Enter the dimensions of the unit you are aligning.</p>
+        <p class="note">A and B are measured from the DTI tip plane at the coupling. Defaults (from OEC 42): D 476, A 1500, B 2700. Enter the dimensions of the unit you are aligning.</p>
         <div class="btns"><button id="resetDims" type="button">Reset to default dimensions</button></div>
       </section>
 
@@ -193,10 +193,10 @@ ul.rules b{color:var(--ink)}
 
 <script>
 (function(){
-  var DEF = {D:476, A:1200, B:2700, mount:"turbine", sag:0, thN:0, thF:0, tolO:0.05, tolA:0.05};
+  var DEF = {D:476, A:1500, B:2700, mount:"turbine", sag:0, thN:0, thF:0, tolO:0.05, tolA:0.05};
   var EX  = {R3:0.15, R6:0.40, R9:0.25, F3:-0.04, F6:-0.10, F9:-0.06};
   var ids = ["D","A","B","mount","sag","R3","R6","R9","F3","F6","F9","thN","thF","tolO","tolA"];
-  var KEY = "olk3-tg-align-v1";
+  var KEY = "olk3-tg-align-v2";
   var $ = function(id){return document.getElementById(id)};
   var isExample = true;
 

@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Olkaria 3 TG Alignment</title>
+<style>
+html{color-scheme:light}body{margin:0}[hidden]{display:none!important}
+/* Layout: instrument-panel tool — inputs left, foot moves right; stacks on phones */
+:root{
+  --bg:#eef1f3; --panel:#ffffff; --ink:#17212b; --muted:#5c6a77; --line:#d3dae0;
+  --accent:#0f5f7a; --accent-soft:#e1eef3; --field:#f7f9fa;
+  --good:#1f7a4a; --good-bg:#e3f3ea; --warn:#9a6200; --warn-bg:#fbf0dc; --bad:#b0302a; --bad-bg:#f9e4e2;
+  --raise:#1f7a4a; --lower:#b0302a;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11171c; --panel:#18212a; --ink:#e3e9ee; --muted:#93a2b0; --line:#2b3741;
+  --accent:#5db4d2; --accent-soft:#1b3340; --field:#121a21;
+  --good:#5cc68c; --good-bg:#16302a; --warn:#e3ad4a; --warn-bg:#33291a; --bad:#f07a72; --bad-bg:#3a1f1e;
+  --raise:#5cc68c; --lower:#f07a72; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11171c; --panel:#18212a; --ink:#e3e9ee; --muted:#93a2b0; --line:#2b3741;
+  --accent:#5db4d2; --accent-soft:#1b3340; --field:#121a21;
+  --good:#5cc68c; --good-bg:#16302a; --warn:#e3ad4a; --warn-bg:#33291a; --bad:#f07a72; --bad-bg:#3a1f1e;
+  --raise:#5cc68c; --lower:#f07a72; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-block:24px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:20px}
+h1{font-family:var(--f-display);font-weight:700;font-size:1.9rem;letter-spacing:.01em;margin:0;line-height:1.1;text-wrap:balance}
+.sub{color:var(--muted);margin:4px 0 0;max-width:62ch}
+.tag{font-family:var(--f-mono);font-size:.75rem;color:var(--accent);background:var(--accent-soft);padding:4px 8px;border-radius:4px;letter-spacing:.04em}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+h2{font-family:var(--f-display);font-weight:600;font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fields.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted);min-width:0}
+label b{color:var(--ink);font-weight:600}
+input,select{font-family:var(--f-mono);font-size:1rem;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:5px;padding:8px 10px;width:100%;min-width:0}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.note{font-size:.8rem;color:var(--muted);margin:10px 0 0}
+table.rd{width:100%;border-collapse:collapse;font-size:.85rem}
+table.rd th{font-weight:600;color:var(--muted);text-align:center;padding:4px;font-size:.78rem;letter-spacing:.04em}
+table.rd th:first-child{text-align:left}
+table.rd td{padding:4px}
+table.rd td:first-child{color:var(--ink);font-weight:600;white-space:nowrap;padding-right:8px}
+table.rd td.zero{font-family:var(--f-mono);text-align:center;color:var(--muted)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button{font-family:var(--f-body);font-size:.85rem;font-weight:600;border-radius:5px;padding:8px 12px;cursor:pointer;border:1px solid var(--line);background:var(--field);color:var(--ink)}
+button:hover{border-color:var(--accent);color:var(--accent)}
+.example{font-size:.78rem;color:var(--warn);background:var(--warn-bg);border-radius:4px;padding:6px 10px;margin-bottom:12px}
+.example[hidden]{display:none}
+
+.status{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.pill{font-size:.78rem;font-weight:600;padding:5px 10px;border-radius:999px;display:inline-flex;gap:6px;align-items:center}
+.pill.good{color:var(--good);background:var(--good-bg)} .pill.warn{color:var(--warn);background:var(--warn-bg)} .pill.bad{color:var(--bad);background:var(--bad-bg)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+
+.moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:420px){.moves{grid-template-columns:minmax(0,1fr)}}
+.move{border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--field);min-width:0}
+.move .k{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.move .v{font-family:var(--f-mono);font-size:1.7rem;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:2px}
+.move .a{font-size:.85rem;font-weight:600}
+.up{color:var(--raise)} .down{color:var(--lower)} .none{color:var(--muted)}
+.sect{font-family:var(--f-display);font-weight:600;font-size:.95rem;margin:16px 0 8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sect:first-of-type{margin-top:0}
+.sect span{font-family:var(--f-mono);font-weight:400;font-size:.78rem;color:var(--muted)}
+
+.plots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+@media (max-width:560px){.plots{grid-template-columns:minmax(0,1fr)}}
+.plot{border:1px solid var(--line);border-radius:6px;padding:8px;min-width:0}
+.plot h3{font-size:.78rem;font-weight:600;color:var(--muted);margin:0 0 4px;letter-spacing:.04em}
+.plot svg{width:100%;height:auto;display:block}
+.plot text{font-family:var(--f-mono);font-size:10px;fill:var(--muted)}
+
+.formula{font-family:var(--f-mono);font-size:.9rem;background:var(--accent-soft);color:var(--ink);padding:10px 12px;border-radius:5px;overflow-x:auto;white-space:nowrap}
+ul.rules{margin:10px 0 0;padding-left:18px;font-size:.85rem;color:var(--muted)}
+ul.rules li{margin-bottom:4px}
+ul.rules b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Olkaria 3 TG Alignment</h1>
+      <p class="sub">Turbine–generator coupling alignment for all Olkaria III units. Generator is the reference; all moves are on the turbine feet.</p>
+    </div>
+    <span class="tag">GENERATOR = REFERENCE</span>
+  </header>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel">
+        <h2>Machine dimensions (mm)</h2>
+        <div class="fields">
+          <label for="D"><b>D</b>Face swing dia.<input id="D" type="number" step="any" inputmode="decimal"></label>
+          <label for="A"><b>A</b>To near foot<input id="A" type="number" step="any" inputmode="decimal"></label>
+          <label for="B"><b>B</b>To far foot<input id="B" type="number" step="any" inputmode="decimal"></label>
+        </div>
+        <div class="fields two" style="margin-top:12px">
+          <label for="mount"><b>DTI mounting</b>
+            <select id="mount">
+              <option value="turbine">On turbine, reading generator hub (turbine rotated only)</option>
+              <option value="generator">On generator, reading turbine hub (both rotated)</option>
+            </select>
+          </label>
+          <label for="sag"><b>Bar sag at 6 (mm)</b>Usually negative<input id="sag" type="number" step="0.01" inputmode="decimal"></label>
+        </div>
+        <p class="note">A and B are measured from the DTI tip plane at the coupling. Defaults (from OEC 42): D 476, A 1200, B 2700. Enter the dimensions of the unit you are aligning.</p>
+        <div class="btns"><button id="resetDims" type="button">Reset to default dimensions</button></div>
+      </section>
+
+      <section class="panel">
+        <h2>DTI readings (mm), zeroed at 12</h2>
+        <div class="example" id="exNote">Example readings shown. Replace them with your own.</div>
+        <table class="rd">
+          <thead><tr><th></th><th>12</th><th>3</th><th>6</th><th>9</th></tr></thead>
+          <tbody>
+            <tr><td>Rim</td><td class="zero">0</td>
+              <td><input id="R3" type="number" step="0.01" inputmode="decimal" aria-label="Rim at 3"></td>
+              <td><input id="R6" type="number" step="0.01" inputmode="decimal" aria-label="Rim at 6"></td>
+              <td><input id="R9" type="number" step="0.01" inputmode="decimal" aria-label="Rim at 9"></td></tr>
+            <tr><td>Face</td><td class="zero">0</td>
+              <td><input id="F3" type="number" step="0.01" inputmode="decimal" aria-label="Face at 3"></td>
+              <td><input id="F6" type="number" step="0.01" inputmode="decimal" aria-label="Face at 6"></td>
+              <td><input id="F9" type="number" step="0.01" inputmode="decimal" aria-label="Face at 9"></td></tr>
+          </tbody>
+        </table>
+        <p class="note">Mark on the machine which side is 3 and which is 9 (for example, viewed from the turbine toward the generator) and keep it the same every time.</p>
+        <div class="btns"><button id="clearRd" type="button">Clear readings</button></div>
+      </section>
+
+      <section class="panel">
+        <h2>Targets &amp; tolerances</h2>
+        <div class="fields two">
+          <label for="thN"><b>Thermal rise, near foot</b>Turbine vs generator (mm)<input id="thN" type="number" step="0.01" inputmode="decimal"></label>
+          <label for="thF"><b>Thermal rise, far foot</b>Turbine vs generator (mm)<input id="thF" type="number" step="0.01" inputmode="decimal"></label>
+          <label for="tolO"><b>Offset tolerance</b>mm at coupling<input id="tolO" type="number" step="0.01" inputmode="decimal"></label>
+          <label for="tolA"><b>Angularity tolerance</b>mm per 100 mm<input id="tolA" type="number" step="0.01" inputmode="decimal"></label>
+        </div>
+        <p class="note">Thermal rise is subtracted so the turbine sits low when cold. Use the Ormat manual values; leave 0 if none.</p>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel">
+        <h2>Foot moves on the turbine</h2>
+        <div class="status" id="status"></div>
+
+        <div class="sect">Vertical (shims) <span id="vInfo"></span></div>
+        <div class="moves">
+          <div class="move"><div class="k">Near foot (A)</div><div class="v" id="vN"></div><div class="a" id="vNa"></div></div>
+          <div class="move"><div class="k">Far foot (B)</div><div class="v" id="vF"></div><div class="a" id="vFa"></div></div>
+        </div>
+
+        <div class="sect">Horizontal (jack bolts) <span id="hInfo"></span></div>
+        <div class="moves">
+          <div class="move"><div class="k">Near foot (A)</div><div class="v" id="hN"></div><div class="a" id="hNa"></div></div>
+          <div class="move"><div class="k">Far foot (B)</div><div class="v" id="hF"></div><div class="a" id="hFa"></div></div>
+        </div>
+
+        <div class="plots">
+          <div class="plot"><h3>Side view: turbine centreline vs generator (exaggerated)</h3><svg id="pV" viewBox="0 0 300 150" role="img" aria-label="Vertical position plot"></svg></div>
+          <div class="plot"><h3>Top view: turbine centreline vs generator (exaggerated)</h3><svg id="pH" viewBox="0 0 300 150" role="img" aria-label="Horizontal position plot"></svg></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Formula in use</h2>
+        <div class="formula" id="fx"></div>
+        <ul class="rules">
+          <li><b>Vertical:</b> R and F at 6 (rim sag-corrected). Positive = raise the foot (add shims).</li>
+          <li><b>Horizontal:</b> uses R3 − R9 and F3 − F9. Positive = move the foot toward the 9 o'clock side.</li>
+          <li><b>Check:</b> R6 should equal R3 + R9 (and the same for face) within 0.03 mm, or re-take the set.</li>
+          <li>Do vertical moves first, then horizontal, then take a confirming set.</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var DEF = {D:476, A:1200, B:2700, mount:"turbine", sag:0, thN:0, thF:0, tolO:0.05, tolA:0.05};
+  var EX  = {R3:0.15, R6:0.40, R9:0.25, F3:-0.04, F6:-0.10, F9:-0.06};
+  var ids = ["D","A","B","mount","sag","R3","R6","R9","F3","F6","F9","thN","thF","tolO","tolA"];
+  var KEY = "olk3-tg-align-v1";
+  var $ = function(id){return document.getElementById(id)};
+  var isExample = true;
+
+  function load(){
+    var saved = null;
+    try{ saved = JSON.parse(localStorage.getItem(KEY) || "null"); }catch(e){}
+    var src = saved && saved.v ? saved.v : Object.assign({}, DEF, EX);
+    isExample = saved ? !!saved.ex : true;
+    ids.forEach(function(k){ if(src[k] !== undefined && src[k] !== null) $(k).value = src[k]; });
+  }
+  function save(){
+    var v = {}; ids.forEach(function(k){ v[k] = $(k).value; });
+    try{ localStorage.setItem(KEY, JSON.stringify({v:v, ex:isExample})); }catch(e){}
+  }
+  function num(id){ var x = parseFloat($(id).value); return isFinite(x) ? x : 0; }
+  function sgn(x){ return (x>0?"+":x<0?"−":"") + Math.abs(x).toFixed(2); }
+
+  function vText(v){
+    if(Math.abs(v) < 0.005) return ["none","No change"];
+    return v>0 ? ["up","Raise: add "+Math.abs(v).toFixed(2)+" mm shims"] : ["down","Lower: remove "+Math.abs(v).toFixed(2)+" mm shims"];
+  }
+  function hText(v){
+    if(Math.abs(v) < 0.005) return ["none","No change"];
+    return v>0 ? ["up","Move "+Math.abs(v).toFixed(2)+" mm toward 9 o'clock side"] : ["down","Move "+Math.abs(v).toFixed(2)+" mm toward 3 o'clock side"];
+  }
+  function setMove(id, v, fn){
+    var t = fn(v); $(id).textContent = sgn(v)+" mm"; $(id).className = "v "+t[0];
+    $(id+"a").textContent = t[1]; $(id+"a").className = "a "+t[0];
+  }
+
+  function plot(svgId, off, slope, A, B, labPos, labNeg){
+    var W=300,H=150,L=34,R=10,T=14,Bm=24;
+    var x0=-0.35*B, x1=B*1.05;
+    var ys=[0, off, off+slope*A, off+slope*B];
+    var m=Math.max(0.1, Math.max.apply(null, ys.map(Math.abs))*1.25);
+    var X=function(x){return L+(x-x0)/(x1-x0)*(W-L-R)}, Y=function(y){return T+(m-y)/(2*m)*(H-T-Bm)};
+    var s='';
+    s+='<line x1="'+L+'" y1="'+Y(0)+'" x2="'+(W-R)+'" y2="'+Y(0)+'" stroke="var(--line)" stroke-width="1"/>';
+    s+='<line x1="'+X(0)+'" y1="'+T+'" x2="'+X(0)+'" y2="'+(H-Bm)+'" stroke="var(--line)" stroke-dasharray="3 3"/>';
+    s+='<line x1="'+X(x0)+'" y1="'+Y(0)+'" x2="'+X(0)+'" y2="'+Y(0)+'" stroke="var(--muted)" stroke-width="3"/>';
+    s+='<line x1="'+X(0)+'" y1="'+Y(off)+'" x2="'+X(x1)+'" y2="'+Y(off+slope*x1)+'" stroke="var(--accent)" stroke-width="3"/>';
+    [[A,"A"],[B,"B"]].forEach(function(p){
+      var y=off+slope*p[0];
+      s+='<circle cx="'+X(p[0])+'" cy="'+Y(y)+'" r="4" fill="var(--accent)"/>';
+      s+='<text x="'+X(p[0])+'" y="'+(H-8)+'" text-anchor="middle">'+p[1]+'</text>';
+    });
+    s+='<text x="'+X(0)+'" y="'+(H-8)+'" text-anchor="middle">cpl</text>';
+    s+='<text x="'+(X(x0)+2)+'" y="'+(Y(0)-5)+'">GEN</text>';
+    s+='<text x="4" y="'+(T+4)+'">'+labPos+'</text>';
+    s+='<text x="4" y="'+(H-Bm)+'">'+labNeg+'</text>';
+    s+='<text x="'+(L-4)+'" y="'+(T+10)+'" text-anchor="end">+'+m.toFixed(2)+'</text>';
+    s+='<text x="'+(L-4)+'" y="'+(H-Bm-2)+'" text-anchor="end">−'+m.toFixed(2)+'</text>';
+    $(svgId).innerHTML=s;
+  }
+
+  function calc(){
+    var D=num("D")||1, A=num("A"), B=num("B"), s=$("mount").value==="turbine"?-1:1;
+    var sag=num("sag"), R3=num("R3"), R6=num("R6"), R9=num("R9"), F3=num("F3"), F6=num("F6"), F9=num("F9");
+    var thN=num("thN"), thF=num("thF"), tolO=num("tolO"), tolA=num("tolA");
+    var Rv=R6-sag, Fv=F6, Rh=R3-R9, Fh=F3-F9;
+    var cV=function(L){return s*Rv/2 + Fv/D*L}, cH=function(L){return s*Rh/2 + Fh/D*L};
+    setMove("vN", cV(A)-thN, vText); setMove("vF", cV(B)-thF, vText);
+    setMove("hN", cH(A), hText);     setMove("hF", cH(B), hText);
+
+    var oV=Math.abs(Rv)/2, aV=Math.abs(Fv)/D*100, oH=Math.abs(Rh)/2, aH=Math.abs(Fh)/D*100;
+    $("vInfo").textContent="offset "+oV.toFixed(3)+" mm · angularity "+aV.toFixed(3)+"/100";
+    $("hInfo").textContent="offset "+oH.toFixed(3)+" mm · angularity "+aH.toFixed(3)+"/100";
+
+    var st=[];
+    var rOk=Math.abs(R6-(R3+R9))<=0.03, fOk=Math.abs(F6-(F3+F9))<=0.03;
+    st.push(rOk&&fOk ? ["good","Readings valid"] : ["bad","Check readings: "+(!rOk?"rim ":"")+(!fOk?"face ":"")+"6 ≠ 3 + 9"]);
+    var within = Math.max(oV,oH)<=tolO && Math.max(aV,aH)<=tolA;
+    st.push(within ? ["good","Within tolerance"] : ["warn","Out of tolerance"]);
+    if(thN||thF) st.push(["good","Thermal targets applied"]);
+    $("status").innerHTML = st.map(function(p){return '<span class="pill '+p[0]+'">'+p[1]+'</span>'}).join("");
+
+        plot("pV", -s*Rv/2, -Fv/D, A, B, "high", "low");
+    plot("pH", -s*Rh/2, -Fh/D, A, B, "→3", "→9");
+
+    $("fx").textContent = "Move = "+(s<0?"−":"+")+"R/2 + (F/D)×L    D="+D+"  A="+A+"  B="+B;
+    $("exNote").hidden = !isExample;
+  }
+
+  load(); calc();
+  ids.forEach(function(k){
+    $(k).addEventListener("input", function(){
+      if(/^[RF]\d$/.test(k)) isExample=false;
+      calc(); save();
+    });
+  });
+  $("mount").addEventListener("change", function(){calc(); save();});
+  $("resetDims").addEventListener("click", function(){
+    ["D","A","B","mount","sag","thN","thF","tolO","tolA"].forEach(function(k){$(k).value=DEF[k];});
+    calc(); save();
+  });
+  $("clearRd").addEventListener("click", function(){
+    ["R3","R6","R9","F3","F6","F9"].forEach(function(k){$(k).value="";});
+    isExample=false; calc(); save(); $("R3").focus();
+  });
+})();
+</script>
+
+</body>
+</html>

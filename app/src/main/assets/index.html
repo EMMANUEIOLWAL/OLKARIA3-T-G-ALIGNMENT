@@ -230,7 +230,7 @@ ul.rules b{color:var(--ink)}
     var c = ok ? "ok" : "adj";
     $(id).parentNode.className = "move "+c;
     $(id).textContent = sgn(v)+" mm"; $(id).className = "v "+c;
-    $(id+"a").textContent = ok ? "Within tolerance, no adjustment needed" : fn(v);
+    $(id+"a").textContent = Math.abs(v) < 0.005 ? "Already at zero" : fn(v)+" to bring to zero";
     $(id+"a").className = "a "+c;
   }
   // Residual misalignment (vs targets) from the two foot moves: offset at the coupling and angularity per 100 mm

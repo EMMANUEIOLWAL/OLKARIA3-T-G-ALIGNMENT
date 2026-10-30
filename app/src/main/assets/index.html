@@ -70,7 +70,10 @@ button:hover{border-color:var(--accent);color:var(--accent)}
 .move .k{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .move .v{font-family:var(--f-mono);font-size:1.7rem;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:2px}
 .move .a{font-size:.85rem;font-weight:600}
-.up{color:var(--raise)} .down{color:var(--lower)} .none{color:var(--muted)}
+.ok{color:var(--good)} .adj{color:var(--bad)}
+.move.ok{border-color:var(--good);background:var(--good-bg)}
+.move.adj{border-color:var(--bad);background:var(--bad-bg)}
+.sect span.ok,.sect span.adj{font-weight:600}
 .sect{font-family:var(--f-display);font-weight:600;font-size:.95rem;margin:16px 0 8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .sect:first-of-type{margin-top:0}
 .sect span{font-family:var(--f-mono);font-weight:400;font-size:.78rem;color:var(--muted)}
@@ -215,16 +218,25 @@ ul.rules b{color:var(--ink)}
   function sgn(x){ return (x>0?"+":x<0?"−":"") + Math.abs(x).toFixed(2); }
 
   function vText(v){
-    if(Math.abs(v) < 0.005) return ["none","No change"];
-    return v>0 ? ["up","Raise: add "+Math.abs(v).toFixed(2)+" mm shims"] : ["down","Lower: remove "+Math.abs(v).toFixed(2)+" mm shims"];
+    if(Math.abs(v) < 0.005) return "No change";
+    return v>0 ? "Raise: add "+Math.abs(v).toFixed(2)+" mm shims" : "Lower: remove "+Math.abs(v).toFixed(2)+" mm shims";
   }
   function hText(v){
-    if(Math.abs(v) < 0.005) return ["none","No change"];
-    return v>0 ? ["up","Move "+Math.abs(v).toFixed(2)+" mm toward 9 o'clock side"] : ["down","Move "+Math.abs(v).toFixed(2)+" mm toward 3 o'clock side"];
+    if(Math.abs(v) < 0.005) return "No change";
+    return v>0 ? "Move "+Math.abs(v).toFixed(2)+" mm toward 9 o'clock side" : "Move "+Math.abs(v).toFixed(2)+" mm toward 3 o'clock side";
   }
-  function setMove(id, v, fn){
-    var t = fn(v); $(id).textContent = sgn(v)+" mm"; $(id).className = "v "+t[0];
-    $(id+"a").textContent = t[1]; $(id+"a").className = "a "+t[0];
+  // ok = this plane is within tolerance: card green, no adjustment needed; otherwise red with the move
+  function setMove(id, v, fn, ok){
+    var c = ok ? "ok" : "adj";
+    $(id).parentNode.className = "move "+c;
+    $(id).textContent = sgn(v)+" mm"; $(id).className = "v "+c;
+    $(id+"a").textContent = ok ? "Within tolerance, no adjustment needed" : fn(v);
+    $(id+"a").className = "a "+c;
+  }
+  // Residual misalignment (vs targets) from the two foot moves: offset at the coupling and angularity per 100 mm
+  function residual(mN, mF, A, B){
+    var k = (B!==A) ? (mF-mN)/(B-A) : 0;
+    return {off: Math.abs(mN - k*A), ang: Math.abs(k)*100};
   }
 
   function plot(svgId, off, slope, A, B, labPos, labNeg){
@@ -258,18 +270,23 @@ ul.rules b{color:var(--ink)}
     var thN=num("thN"), thF=num("thF"), tolO=num("tolO"), tolA=num("tolA");
     var Rv=R6-sag, Fv=F6, Rh=R3-R9, Fh=F3-F9;
     var cV=function(L){return s*Rv/2 + Fv/D*L}, cH=function(L){return s*Rh/2 + Fh/D*L};
-    setMove("vN", cV(A)-thN, vText); setMove("vF", cV(B)-thF, vText);
-    setMove("hN", cH(A), hText);     setMove("hF", cH(B), hText);
+    var vN=cV(A)-thN, vF=cV(B)-thF, hN=cH(A), hF=cH(B);
+    var rv=residual(vN,vF,A,B), rh=residual(hN,hF,A,B);
+    var oV=rv.off, aV=rv.ang, oH=rh.off, aH=rh.ang;
+    var vOk = oV<=tolO+1e-9 && aV<=tolA+1e-9, hOk = oH<=tolO+1e-9 && aH<=tolA+1e-9;
+    setMove("vN", vN, vText, vOk); setMove("vF", vF, vText, vOk);
+    setMove("hN", hN, hText, hOk); setMove("hF", hF, hText, hOk);
 
-    var oV=Math.abs(Rv)/2, aV=Math.abs(Fv)/D*100, oH=Math.abs(Rh)/2, aH=Math.abs(Fh)/D*100;
-    $("vInfo").textContent="offset "+oV.toFixed(3)+" mm · angularity "+aV.toFixed(3)+"/100";
-    $("hInfo").textContent="offset "+oH.toFixed(3)+" mm · angularity "+aH.toFixed(3)+"/100";
+    $("vInfo").textContent=(vOk?"OK · ":"ADJUST · ")+"offset "+oV.toFixed(3)+" mm · angularity "+aV.toFixed(3)+"/100";
+    $("vInfo").className = vOk?"ok":"adj";
+    $("hInfo").textContent=(hOk?"OK · ":"ADJUST · ")+"offset "+oH.toFixed(3)+" mm · angularity "+aH.toFixed(3)+"/100";
+    $("hInfo").className = hOk?"ok":"adj";
 
     var st=[];
     var rOk=Math.abs(R6-(R3+R9))<=0.03, fOk=Math.abs(F6-(F3+F9))<=0.03;
     st.push(rOk&&fOk ? ["good","Readings valid"] : ["bad","Check readings: "+(!rOk?"rim ":"")+(!fOk?"face ":"")+"6 ≠ 3 + 9"]);
-    var within = Math.max(oV,oH)<=tolO && Math.max(aV,aH)<=tolA;
-    st.push(within ? ["good","Within tolerance"] : ["warn","Out of tolerance"]);
+    var within = vOk && hOk;
+    st.push(within ? ["good","Within tolerance"] : ["bad","Adjustment required: "+(!vOk?"vertical ":"")+(!vOk&&!hOk?"+ ":"")+(!hOk?"horizontal":"")]);
     if(thN||thF) st.push(["good","Thermal targets applied"]);
     $("status").innerHTML = st.map(function(p){return '<span class="pill '+p[0]+'">'+p[1]+'</span>'}).join("");
 
